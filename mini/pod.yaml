@@ -1,0 +1,73 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-app
+  namespace: test-app
+spec:
+  tls:
+  - hosts:
+    - test-app.com
+  rules:
+  - host: test-app.com
+    http:
+      paths:
+      - backend:
+          serviceName: test-app
+          servicePort: 8080
+        path: /
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: test-app
+  namespace: test-app
+  labels:
+    run: test
+spec:
+  type: LoadBalancer
+  selector:
+    run: test
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test-app
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: test
+  name: test
+  namespace: test-app
+spec:
+  containers:
+  - image: k8s.gcr.io/echoserver:1.4
+    name: test
+    resources: {}
+    port: 8080
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: test1
+  name: test1
+  namespace: test-app
+spec:
+  containers:
+  - image: k8s.gcr.io/echoserver:1.4
+    name: test1
+    resources: {}
+    port: 8080
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
